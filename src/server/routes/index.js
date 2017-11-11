@@ -322,7 +322,7 @@ module.exports = (app, passport) => {
       }
 
       console.log("Write Streaming file :" + filename);
-      let writeStream = fs.createWriteStream(__dirname + '/../static/problemImages/' + filename);
+      let writeStream = fs.createWriteStream(__dirname + '/../../../static/problemImages/' + filename);
       writeStream.filename = filename;
       part.pipe(writeStream);
 
@@ -354,13 +354,13 @@ module.exports = (app, passport) => {
     form.parse(req);
   });
 
-  app.delete('/admin/problems/:title', (req, res) => {
+  app.delete('/api/admin/problems/:title', (req, res) => {
     ProblemSchema.findOne({ title: req.params.title }, (err, problemInfo) => {
       if (err) return res.status(500);
       if (!problemInfo) return res.json({ success: false });
       ProblemSchema.remove({ title: req.params.title }, (err) => {
         if (err) return res.status(500);
-        fs.unlink(__dirname + `/../static/problemImages/${problemInfo.imageName}`, (err) => {
+        fs.unlink(__dirname + `/../../../static/problemImages/${problemInfo.imageName}`, (err) => {
           if (err) console.log(err);
           updateProblemList(res);
         });
@@ -380,7 +380,7 @@ module.exports = (app, passport) => {
         }
         return 1;
       });
-      res.json({ success: true });
+      res.json(problemList);
     });
   }
 
@@ -418,7 +418,7 @@ module.exports = (app, passport) => {
       }
 
       console.log("Write Streaming file :" + filename);
-      let writeStream = fs.createWriteStream(__dirname + '/../static/storyImages/' + filename);
+      let writeStream = fs.createWriteStream(__dirname + '/../../../static/storyImages/' + filename);
       writeStream.filename = filename;
       part.pipe(writeStream);
 
@@ -456,7 +456,7 @@ module.exports = (app, passport) => {
       if (!storyInfo) return res.json({ success: false });
       StorySchema.remove({ title: req.params.title }, (err) => {
         if (err) return res.status(500);
-        fs.unlink(__dirname + `/../static/storyImages/${storyInfo.imageName}`, (err) => {
+        fs.unlink(__dirname + `/../../../static/storyImages/${storyInfo.imageName}`, (err) => {
           if (err) console.log(err);
           updateStoryList(res);
         });
@@ -476,7 +476,7 @@ module.exports = (app, passport) => {
         }
         return 1;
       });
-      res.json({ success: true });
+      res.json(storyList);
     });
   }
 }
