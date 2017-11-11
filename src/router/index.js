@@ -7,6 +7,7 @@ import Story from '@/components/Story';
 import Ending from '@/components/Ending';
 import NotAllowed from '@/components/NotAllowed';
 import Reset from '@/components/Reset';
+import AdminProblem from '@/components/AdminProblem';
 
 Vue.use(Router);
 
@@ -46,6 +47,11 @@ export default new Router({
       path: '/not_allowed',
       name: 'NotAllowed',
       component: NotAllowed,
+    },
+    {
+      path: '/admin/problem',
+      name: 'AdminProblem',
+      component: AdminProblem,
     },
     {
       path: '/reset',
