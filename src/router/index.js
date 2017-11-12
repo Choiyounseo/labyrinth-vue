@@ -8,6 +8,7 @@ import Ending from '@/components/Ending';
 import NotAllowed from '@/components/NotAllowed';
 import Reset from '@/components/Reset';
 import AdminProblem from '@/components/AdminProblem';
+import AdminStory from '@/components/AdminStory';
 
 Vue.use(Router);
 
@@ -52,6 +53,11 @@ export default new Router({
       path: '/admin/problem',
       name: 'AdminProblem',
       component: AdminProblem,
+    },
+    {
+      path: '/admin/story',
+      name: 'AdminStory',
+      component: AdminStory,
     },
     {
       path: '/reset',
