@@ -32,28 +32,25 @@
     </div>
     <button id="new_problem_btn" @click="createProblem()">문제 만들기</button>
     <hr />
-    <div id="problem_list">
-      <div v-for="problem in problems">
-        <div>
-          <span>문제 이름 : {{ problem.title }}</span>
-          <button @click="deleteProblem(problem.title)" style="float: right">삭제</button>
-        </div>
-        <p>문제 번호 : {{ problem.number }}</p>
-        <p>문제 사진 :</p>
-        <img :src="'/static/problemImages/' + problem.imageName" width="600"/>
-        <p>문제 답 : {{ problem.answer }}</p>
-        <p>문제 힌트1 : {{ problem.hint[0] }}</p>
-        <p>문제 힌트2 : {{ problem.hint[1] }}</p>
-        <p>문제 힌트3 : {{ problem.hint[2] }}</p>
-        <hr />
+    <div id="problem_list" v-for="problem in problems">
+      <div>
+        <span>문제 이름 : {{ problem.title }}</span>
+        <button @click="deleteProblem(problem.title)" style="float: right">삭제</button>
       </div>
+      <p>문제 번호 : {{ problem.number }}</p>
+      <p>문제 사진 :</p>
+      <img :src="'/static/problemImages/' + problem.imageName" width="600"/>
+      <p>문제 답 : {{ problem.answer }}</p>
+      <p>문제 힌트1 : {{ problem.hint[0] }}</p>
+      <p>문제 힌트2 : {{ problem.hint[1] }}</p>
+      <p>문제 힌트3 : {{ problem.hint[2] }}</p>
+      <hr />
     </div>
   </div>
 </template>
 
 <script>
   import axios from 'axios';
-  import { mapState } from 'vuex';
 
   export default {
     name: 'Main',
@@ -68,11 +65,6 @@
         hint2: '',
         hint3: '',
       };
-    },
-    computed: {
-      ...mapState([
-        'user',
-      ]),
     },
     methods: {
       onFileChange(e) {
@@ -126,15 +118,6 @@
     mounted() {
       axios.get('/api/admin/problems')
         .then((res) => {
-          res.data.sort((p1, p2) => {
-            if (p1.number < p2.number) return -1;
-            if (p1.number === p2.number) {
-              if (p1.title < p2.title) return -1;
-              if (p1.title > p2.title) return 1;
-              return 0;
-            }
-            return 1;
-          });
           this.problems = res.data;
         })
         .catch((err) => {
