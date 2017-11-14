@@ -6,6 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 static/problemImages/
 static/storyImages/
+!.gitkeep
 
 # Editor directories and files
 .idea
