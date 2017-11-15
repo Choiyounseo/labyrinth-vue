@@ -67,12 +67,18 @@
     },
     mounted() {
       this.updateUser();
+      if (this.user.progress + 1 < this.$route.params.number) {
+        this.$router.replace('/not_allowed');
+      }
       axios.get(`/api/problems/${this.$route.params.number}`)
         .then((res) => {
-          this.problem = res.data;
+          if (res.data.finished) {
+            this.$router.replace('/ending');
+          }
+          this.problem = res.data.problem;
         })
         .catch(() => {
-          this.$router.push('/not_allowed');
+          this.$router.replace('/not_allowed');
         });
     },
   };
