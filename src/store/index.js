@@ -14,10 +14,13 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    updateUser({ commit }) {
+    updateUser({ commit }, callback) {
       axios.get('/api/user')
         .then((res) => {
           commit('updateUser', res.data.user);
+          if (callback) {
+            callback();
+          }
           return null;
         })
         .catch(err => err);
