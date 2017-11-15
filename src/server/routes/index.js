@@ -234,6 +234,34 @@ module.exports = (app, passport) => {
     res.json(req.user);
   });
 
+  app.get('/api/problems', (req, res) => {
+    res.json(problemList.slice(0, req.user.progress));
+  });
+
+  app.get('/api/problems/:number', (req, res) => {
+    // if (req.user.progress + 1 < req.params.number) return res.redirect('/not_allowed');
+    const problem = problemList[req.user.progress - 1];
+    if (req.params.number > problemList.length) return res.json({ finished: true });
+    if (req.user.progress >= req.params.number || req.user.timer_start != null) return res.json({ problem });
+    UserSchema.findOne({ id: req.user.id }, (err, userInfo) => {
+      if (err) return res.status(500);
+      if (!userInfo) return res.status(500);
+      userInfo.timer_start = new Date();
+      userInfo.save((err) => {
+        if (err) return res.status(500);
+        LogSchema.findOne({ id: req.user.id }, (err, logInfo) => {
+          if (err) return res.status(500);
+          if (logInfo.log_start.length >= req.params.number) return res.json({ problem });
+          logInfo.log_start.push(userInfo.timer_start);
+          logInfo.save((err) => {
+            if (err) return res.status(500);
+            res.json({ problem });
+          });
+        });
+      });
+    });
+  });
+
   app.post('/api/problems/:number/answer', (req, res) => {
     if (req.params.number > req.user.progress + 1) return res.json({ correct: false });
     ProblemSchema.findOne({ number: req.params.number, answer: req.body.answer }, (err, problemInfo) => {
