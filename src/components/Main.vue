@@ -51,6 +51,20 @@
     },
     mounted() {
       this.updateUser();
+      axios.get('/api/problems')
+        .then((res) => {
+          this.problems = res.data;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      axios.get('/api/stories')
+        .then((res) => {
+          this.stories = res.data;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
   };
 </script>
