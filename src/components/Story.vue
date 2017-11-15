@@ -8,7 +8,7 @@
       <br />
       <br />
       <br />
-      <router-link :to="{ name: 'Problem', params: { number: $this.route.params.number + 1 } }">다음으로</router-link>
+      <router-link :to="{ name: 'Problem', params: { number: Number($route.params.number) + 1 } }">다음으로</router-link>
     </div>
   </div>
 </template>
