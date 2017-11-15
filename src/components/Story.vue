@@ -35,7 +35,7 @@
       ]),
     },
     mounted() {
-      this.updateUser()
+      this.updateUser();
       axios.get(`/api/stories/${this.$route.params.number}`)
         .then((res) => {
           this.story = res.data.story;
