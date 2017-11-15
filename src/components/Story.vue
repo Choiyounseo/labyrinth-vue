@@ -38,7 +38,7 @@
       this.updateUser()
       axios.get(`/api/stories/${this.$route.params.number}`)
         .then((res) => {
-          this.story = res.data;
+          this.story = res.data.story;
         })
         .catch(() => {
           this.$router.push('/not_allowed');
