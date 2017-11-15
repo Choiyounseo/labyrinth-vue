@@ -28,7 +28,8 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex';
+  import axios from 'axios';
+  import { mapState, mapActions } from 'vuex';
 
   export default {
     name: 'Main',
@@ -42,6 +43,14 @@
       ...mapState([
         'user',
       ]),
+    },
+    methods: {
+      ...mapActions([
+        'updateUser',
+      ]),
+    },
+    mounted() {
+      this.updateUser();
     },
   };
 </script>

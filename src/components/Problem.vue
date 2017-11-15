@@ -25,6 +25,7 @@
 
 <script>
   import axios from 'axios';
+  import { mapState, mapActions } from 'vuex';
 
   export default {
     name: 'Problem',
@@ -40,8 +41,14 @@
       imgSrc() {
         return `/static/problems/${this.problem.imgName}`;
       },
+      ...mapState([
+        'user',
+      ]),
     },
     methods: {
+      ...mapActions([
+        'updateUser',
+      ]),
       submitAnswer() {
         axios.post(`/api/problems/${this.$route.params.number}/answer`, {
           answer: this.answer,
@@ -59,6 +66,7 @@
       },
     },
     mounted() {
+      this.updateUser();
       axios.get(`/api/problems/${this.$route.params.number}`)
         .then((res) => {
           this.problem = res.data;

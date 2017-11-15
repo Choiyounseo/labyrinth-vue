@@ -15,6 +15,7 @@
 
 <script>
   import axios from 'axios';
+  import { mapActions } from 'vuex';
 
   export default {
     name: 'Story',
@@ -28,7 +29,13 @@
         return `/static/stories/${this.story.imgName}`;
       },
     },
+    methods: {
+      ...mapActions([
+        'updateUser',
+      ]),
+    },
     mounted() {
+      this.updateUser()
       axios.get(`/api/stories/${this.$route.params.number}`)
         .then((res) => {
           this.story = res.data;
