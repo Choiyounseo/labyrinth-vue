@@ -3,7 +3,7 @@
     <img src="/static/start.png" width="800"/>
     <p>
       <!--TODO: route to the current problem according to the user session-->
-      <router-link :to="{ name: 'Problem', params: { number: 1 } }">현재 문제로 가기</router-link>
+      <router-link :to="currProbUrl">현재 문제로 가기</router-link>
     </p>
     <br />
     <br />
@@ -29,7 +29,7 @@
 
 <script>
   import axios from 'axios';
-  import { mapState, mapActions } from 'vuex';
+  import { mapState, mapActions, mapGetters } from 'vuex';
 
   export default {
     name: 'Main',
@@ -42,6 +42,9 @@
     computed: {
       ...mapState([
         'user',
+      ]),
+      ...mapGetters([
+        'currProbUrl',
       ]),
     },
     methods: {

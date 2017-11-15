@@ -23,4 +23,13 @@ export default new Vuex.Store({
         .catch(err => err);
     },
   },
+  getters: {
+    currProbUrl(state) {
+      if (!state.user) return '/stories/0';
+      if (!state.user.timer_start) {
+        return { name: 'Story', params: { number: state.user.progress } };
+      }
+      return { name: 'Problem', params: { number: state.user.progress + 1 } };
+    },
+  },
 });
