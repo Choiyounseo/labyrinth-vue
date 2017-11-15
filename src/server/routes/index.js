@@ -239,27 +239,42 @@ module.exports = (app, passport) => {
   });
 
   app.get('/api/problems/:number', (req, res) => {
-    // if (req.user.progress + 1 < req.params.number) return res.redirect('/not_allowed');
-    const problem = problemList[req.user.progress - 1];
-    if (req.params.number > problemList.length) return res.json({ finished: true });
-    if (req.user.progress >= req.params.number || req.user.timer_start != null) return res.json({ problem });
-    UserSchema.findOne({ id: req.user.id }, (err, userInfo) => {
-      if (err) return res.status(500);
-      if (!userInfo) return res.status(500);
-      userInfo.timer_start = new Date();
-      userInfo.save((err) => {
+    if (req.user.progress + 1 < req.params.number) return res.status(401);  /* if user does not solved previous problem yet. */
+    if (req.params.number > problemList.length + 1) return res.status(404); /* if no such problem exists. */
+    if (req.params.number == problemList.length + 1) {                      /* if requested problem number is right next to the last problem */
+      if (req.user.timer_start) return res.json({ finished: true });        /* if user already entered ending. */
+      UserSchema.findOne({ id: req.user.id }, (err, userInfo) => {          /* if user is first time to enter ending. */
         if (err) return res.status(500);
-        LogSchema.findOne({ id: req.user.id }, (err, logInfo) => {
+        if (!userInfo) return res.status(500);
+        userInfo.timer_start = new Date();
+        userInfo.save((err) => {
           if (err) return res.status(500);
-          if (logInfo.log_start.length >= req.params.number) return res.json({ problem });
-          logInfo.log_start.push(userInfo.timer_start);
-          logInfo.save((err) => {
+          return res.json({ finished: true });
+        });
+      });
+    } else { /* if needed to respond with problem normally. */
+      const problem = problemList[req.user.progress - 1];
+      if (req.user.progress >= req.params.number
+        || req.user.timer_start != null) return res.json({ problem });  /* if already solved or once seen problem. */
+      UserSchema.findOne({ id: req.user.id }, (err, userInfo) => {      /* if first time to see problem. */
+        if (err) return res.status(500);
+        if (!userInfo) return res.status(500);
+        userInfo.timer_start = new Date();
+        userInfo.save((err) => {
+          if (err) return res.status(500);
+          if (req.params.number > problemList.length) return res.json({ finished: true });
+          LogSchema.findOne({ id: req.user.id }, (err, logInfo) => {
             if (err) return res.status(500);
-            res.json({ problem });
+            if (logInfo.log_start.length >= req.params.number) return res.json({ problem });
+            logInfo.log_start.push(userInfo.timer_start);
+            logInfo.save((err) => {
+              if (err) return res.status(500);
+              res.json({ problem });
+            });
           });
         });
       });
-    });
+    }
   });
 
   app.post('/api/problems/:number/answer', (req, res) => {
