@@ -26,7 +26,10 @@
     },
     computed: {
       imgSrc() {
-        return `/static/stories/${this.story.imgName}`;
+        if (!this.story) {
+          return '/';
+        }
+        return `/static/storyImages/${this.story.imageName}`;
       },
     },
     methods: {

@@ -39,7 +39,10 @@
     },
     computed: {
       imgSrc() {
-        return `/static/problems/${this.problem.imgName}`;
+        if (!this.problem) {
+          return '/';
+        }
+        return `/static/problemImages/${this.problem.imageName}`;
       },
       ...mapState([
         'user',
