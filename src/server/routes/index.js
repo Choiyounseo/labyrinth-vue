@@ -256,24 +256,43 @@ module.exports = (app, passport) => {
       const problem = problemList[req.params.number - 1];
       if (req.user.progress >= req.params.number
         || req.user.timer_start != null) return res.json({ problem });  /* if already solved or once seen problem. */
-      UserSchema.findOne({ id: req.user.id }, (err, userInfo) => {      /* if first time to see problem. */
-        if (err) return res.status(500);
-        if (!userInfo) return res.status(500);
-        userInfo.timer_start = new Date();
-        userInfo.save((err) => {
-          if (err) return res.status(500);
-          if (req.params.number > problemList.length) return res.json({ finished: true });
-          LogSchema.findOne({ id: req.user.id }, (err, logInfo) => {
-            if (err) return res.status(500);
-            if (logInfo.log_start.length >= req.params.number) return res.json({ problem });
-            logInfo.log_start.push(userInfo.timer_start);
-            logInfo.save((err) => {
-              if (err) return res.status(500);
-              res.json({ problem });
+      new Promise((resolve, reject) => {  /* if first time to see problem. */
+        UserSchema.findOne({ id: req.user.id }, (err, userInfo) => {
+          if (err || !userInfo) reject();
+          resolve(userInfo);
+        });
+      })
+        .then((userInfo) => {
+          return new Promise((resolve, reject) => {
+            userInfo.timer_start = new Date();
+            userInfo.save((err) => {
+              if (err || !userInfo) reject();
+              if (req.params.number > problemList.length) return res.json({ finished: true });
+              resolve(userInfo);
             });
           });
+        })
+        .then((userInfo) => {
+          return new Promise((resolve, reject) => {
+            LogSchema.findOne({ id: req.user.id }, (err, logInfo) => {
+              if (err || !logInfo) reject();
+              if (logInfo.log_start.length >= req.params.number) return res.json({ problem });
+              logInfo.log_start[req.params.number - 1] = userInfo.timer_start;
+              resolve(logInfo);
+            });
+          });
+        })
+        .then((logInfo) => {
+          return new Promise((resolve, reject) => {
+            logInfo.save((err) => {
+              if (err) reject();
+              return res.json({ problem });
+            });
+          });
+        })
+        .catch(() => {
+          res.status(500);
         });
-      });
     }
   });
 
