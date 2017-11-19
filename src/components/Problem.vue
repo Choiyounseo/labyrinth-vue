@@ -8,7 +8,7 @@
         <span id="timer" style="float: right">00:00:00</span>
       </div>
       <br />
-      <img src="imgSrc" width="800"/>
+      <img :src="imgSrc" width="800"/>
       <br />
       <p>힌트</p>
       <div id="hints">

@@ -4,7 +4,7 @@
       <p class="right_align_wrapper">
         <router-link to="/main">go to main</router-link>
       </p>
-      <img src="imgSrc" width="800"/>
+      <img :src="imgSrc" width="800"/>
       <br />
       <br />
       <br />
