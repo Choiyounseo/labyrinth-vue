@@ -323,7 +323,11 @@ module.exports = (app, passport) => {
   });
 
   app.get('/api/stories/:number', (req, res) => {
-    res.json(storyList[req.params.number]);
+    console.log(req.params.number, storyList.length);
+    if (req.params.number >= storyList.length) {
+      return res.status(500);
+    }
+    res.json({ story: storyList[req.params.number] });
   });
 
   app.get('/api/admin/logs', (req, res) => {
