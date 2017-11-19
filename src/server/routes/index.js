@@ -319,9 +319,7 @@ module.exports = (app, passport) => {
   });
 
   app.get('/api/stories', (req, res) => {
-    let end = req.user.progress + 1;
-    if (!req.user.timer_start) end -= 1;
-    res.json(storyList.slice(0, end));
+    res.json(storyList.slice(0, req.user.progress + 1));
   });
 
   app.get('/api/stories/:number', (req, res) => {
