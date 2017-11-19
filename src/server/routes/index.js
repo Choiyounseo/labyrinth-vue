@@ -253,7 +253,7 @@ module.exports = (app, passport) => {
         });
       });
     } else { /* if needed to respond with problem normally. */
-      const problem = problemList[req.user.progress - 1];
+      const problem = problemList[req.params.number - 1];
       if (req.user.progress >= req.params.number
         || req.user.timer_start != null) return res.json({ problem });  /* if already solved or once seen problem. */
       UserSchema.findOne({ id: req.user.id }, (err, userInfo) => {      /* if first time to see problem. */
