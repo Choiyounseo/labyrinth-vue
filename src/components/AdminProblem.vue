@@ -39,7 +39,7 @@
       </div>
       <p>문제 번호 : {{ problem.number }}</p>
       <p>문제 사진 :</p>
-      <img :src="'/static/problemImages/' + problem.imageName" width="600"/>
+      <img :src="`/static/problemImages/${problem.imageName}`" width="600"/>
       <p>문제 답 : {{ problem.answer }}</p>
       <p>문제 힌트1 : {{ problem.hint[0] }}</p>
       <p>문제 힌트2 : {{ problem.hint[1] }}</p>
