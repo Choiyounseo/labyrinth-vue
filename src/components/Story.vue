@@ -15,7 +15,7 @@
 
 <script>
   import axios from 'axios';
-  import { mapActions } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
 
   export default {
     name: 'Story',
@@ -25,6 +25,9 @@
       };
     },
     computed: {
+      ...mapState([
+        'user',
+      ]),
       imgSrc() {
         if (!this.story) {
           return '/';
@@ -36,16 +39,22 @@
       ...mapActions([
         'updateUser',
       ]),
+      callback() {
+        console.log(this.user.progress);
+        if (this.user.progress < this.$route.params.number) {
+          this.$router.replace('/not_allowed');
+        }
+        axios.get(`/api/stories/${this.$route.params.number}`)
+          .then((res) => {
+            this.story = res.data.story;
+          })
+          .catch(() => {
+            this.$router.push('/not_allowed');
+          });
+      },
     },
     mounted() {
-      this.updateUser();
-      axios.get(`/api/stories/${this.$route.params.number}`)
-        .then((res) => {
-          this.story = res.data.story;
-        })
-        .catch(() => {
-          this.$router.push('/not_allowed');
-        });
+      this.updateUser(this.callback);
     },
   };
 </script>

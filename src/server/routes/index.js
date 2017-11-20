@@ -342,7 +342,6 @@ module.exports = (app, passport) => {
   });
 
   app.get('/api/stories/:number', (req, res) => {
-    console.log(req.params.number, storyList.length);
     if (req.params.number >= storyList.length) {
       return res.status(500);
     }
