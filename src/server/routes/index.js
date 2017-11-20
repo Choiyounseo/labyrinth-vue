@@ -164,56 +164,58 @@ module.exports = (app, passport) => {
   });
 
   app.get('/api/problems/:number', (req, res) => {
-    if (req.user.progress + 1 < req.params.number) return res.status(401);  /* if user does not solved previous problem yet. */
-    if (req.params.number > problemList.length + 1) return res.status(404); /* if no such problem exists. */
-    if (req.params.number == problemList.length + 1) {                      /* if requested problem number is right next to the last problem */
-      if (req.user.timer_start) return res.json({ finished: true });        /* if user already entered ending. */
-      UserSchema.findOne({ id: req.user.id }, (err, userInfo) => {          /* if user is first time to enter ending. */
-        if (err) return res.status(500);
-        if (!userInfo) return res.status(500);
-        userInfo.timer_start = new Date();
-        userInfo.save((err) => {
-          if (err) return res.status(500);
-          return res.json({ finished: true });
+    function userTimerStart(id) {
+      return new Promise((resolve, reject) => {  /* if first time to see problem. */
+        UserSchema.findOne({ id }, (err, userInfo) => {
+          if (err || !userInfo) reject();
+          userInfo.timer_start = new Date();
+          userInfo.save((err) => {
+            if (err) reject();
+            resolve(userInfo);
+          });
         });
       });
-    } else { /* if needed to respond with problem normally. */
-      const problem = problemList[req.params.number - 1];
-      if (req.user.progress >= req.params.number
-        || req.user.timer_start != null) return res.json({ problem });  /* if already solved or once seen problem. */
-      new Promise((resolve, reject) => {  /* if first time to see problem. */
-        UserSchema.findOne({ id: req.user.id }, (err, userInfo) => {
-          if (err || !userInfo) reject();
-          resolve(userInfo);
+    }
+
+    function createNewLog(id, userInfo) {
+      return new Promise((resolve, reject) => {
+        LogSchema.findOne({ id }, (err, logInfo) => {
+          if (err || !logInfo) reject();
+          logInfo.log_start[req.params.number - 1] = userInfo.timer_start;
+          logInfo.save((err) => {
+            if (err) reject();
+            resolve();
+          });
         });
-      })
-        .then((userInfo) => {
-          return new Promise((resolve, reject) => {
-            userInfo.timer_start = new Date();
-            userInfo.save((err) => {
-              if (err || !userInfo) reject();
-              if (req.params.number > problemList.length) return res.json({ finished: true });
-              resolve(userInfo);
-            });
-          });
+      });
+    }
+
+    if (req.params.number > req.user.progress + 1)      /* if user does not solved previous problem yet. */
+      return res.status(401);
+    if (req.params.number > problemList.length + 1)     /* if no such problem exists. */
+      return res.status(404);
+
+    if (req.params.number == problemList.length + 1) {  /* if requested problem number is right next to the last problem. */
+      if (req.user.timer_start)
+        return res.json({ finished: true });  /* if user already entered ending. */
+      userTimerStart(req.user.id)
+        .then(() => {
+          res.json({ finished: true });
         })
+        .catch(() => {
+          res.status(500);
+        });
+    }
+    else { /* if needed to respond with problem normally. */
+      const problem = problemList[req.params.number - 1];
+      if (req.params.number <= req.user.progress || req.user.timer_start)
+        return res.json({ problem }); /* if already solved or once seen problem. */
+      userTimerStart(req.user.id)
         .then((userInfo) => {
-          return new Promise((resolve, reject) => {
-            LogSchema.findOne({ id: req.user.id }, (err, logInfo) => {
-              if (err || !logInfo) reject();
-              if (logInfo.log_start.length >= req.params.number) return res.json({ problem });
-              logInfo.log_start[req.params.number - 1] = userInfo.timer_start;
-              resolve(logInfo);
-            });
-          });
+          return createNewLog(req.user.id, userInfo);
         })
-        .then((logInfo) => {
-          return new Promise((resolve, reject) => {
-            logInfo.save((err) => {
-              if (err) reject();
-              return res.json({ problem });
-            });
-          });
+        .then(() => {
+          res.json({ problem });
         })
         .catch(() => {
           res.status(500);
@@ -222,30 +224,48 @@ module.exports = (app, passport) => {
   });
 
   app.post('/api/problems/:number/answer', (req, res) => {
-    if (req.params.number > req.user.progress + 1) return res.json({ correct: false });
-    ProblemSchema.findOne({ number: req.params.number, answer: req.body.answer }, (err, problemInfo) => {
-      if (err) return res.status(500);
-      if (!problemInfo) return res.json({ correct: false });
-      if (req.params.number <= req.user.progress) return res.json({ correct: true });
-      UserSchema.findOne({ id: req.user.id }, (err, userInfo) => {
-        if (err) return res.status(500);
-        if (!userInfo) return res.status(500);
-        userInfo.progress = req.params.number;
-        userInfo.timer_start = null;
-        userInfo.save((err) => {
-          if (err) return res.status(500);
+    if (req.params.number > req.user.progress + 1)  /* if answer for not-yet-seen problems. */
+      return res.status(401);
+
+    new Promise((resolve, reject) => {
+      ProblemSchema.findOne({ number: req.params.number }, (err, problemInfo) => {
+        if (err || !problemInfo) reject();
+        if (problemInfo.answer !== req.body.answer) return res.json({ correct: false });
+        if (req.params.number <= req.user.progress) return res.json({ correct: true });
+        resolve();
+      });
+    })
+      .then(() => {
+        console.log('log1');
+        new Promise((resolve, reject) => {
+          UserSchema.findOne({ id: req.user.id }, (err, userInfo) => {
+            if (err || !userInfo) reject();
+            userInfo.progress = req.params.number;
+            userInfo.timer_start = null;
+            userInfo.save((err) => {
+              if (err) reject();
+              resolve();
+            });
+          });
+        });
+      })
+      .then(() => {
+        console.log('log2');
+        new Promise((resolve, reject) => {
           LogSchema.findOne({ id: req.user.id }, (err, logInfo) => {
-            if (err) return res.status(500);
-            if (logInfo.log_end.length >= req.params.number) return res.json({ correct: true });
-            logInfo.log_end.push(new Date());
+            if (err) reject();
+            logInfo.log_end[req.params.number - 1] = new Date();
             logInfo.save((err) => {
-              if (err) return res.status(500);
+              if (err) reject();
               return res.json({ correct: true });
             });
           });
         });
+      })
+      .catch(() => {
+        console.log('log3');
+        res.status(500);
       });
-    });
   });
 
   app.get('/api/problems/:problemNum/hints', (req, res) => {
