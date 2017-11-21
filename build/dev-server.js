@@ -113,74 +113,41 @@ app.use('/', (req, res, next) => {
   else
     next();
 });
-app.use('/static/problemImages/:imgName', (req, res, next) => {
-  const imgName = req.params.imgName;
-  const progress = req.user.progress;
-  require('./../src/server/models/problemInfo.js').find({}, (err, problemInfos) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    problemInfos.sort((p1, p2) => {
-      if (p1.number < p2.number) return -1;
-      if (p1.number == p2.number) {
-        if (p1.title < p2.title) return -1;
-        if (p1.title > p2.title) return 1;
-        return 0;
-      }
-      return 1;
-    });
-
-    for (let i = 0; i < problemInfos.length; i++) {
-      if (problemInfos[i].imageName === imgName) {
-        if (progress + 1 < problemInfos[i].number) {
-          res.end('Go away, Anna!');
-          return;
-        } else {
-          next();
-        }
-        break;
-      }
-    }
-  });
-});
-app.use('/static/storyImages/:imgName', (req, res, next) => {
-  const imgName = req.params.imgName;
-  const progress = req.user.progress;
-  require('./../src/server/models/storyInfo.js').find({}, (err, storyInfos) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    storyInfos.sort((p1, p2) => {
-      if (p1.number < p2.number) return -1;
-      if (p1.number == p2.number) {
-        if (p1.title < p2.title) return -1;
-        if (p1.title > p2.title) return 1;
-        return 0;
-      }
-      return 1;
-    });
-
-    for (let i = 0; i < storyInfos.length; i++) {
-      if (storyInfos[i].imageName === imgName) {
-        if (progress + 1 < storyInfos[i].number) {
-          res.end('Go away, Anna!');
-          return;
-        } else {
-          next();
-        }
-        break;
-      }
-    }
-  });
-});
-app.use('/admin', (req, res, next) => {
-  if (req.user.id !== 'admin') {
-    res.redirect('/not_allowed');
-  } else {
+app.use('/static/:folder/:imgName', (req, res, next) => {
+  if (req.params.folder !== 'problemImages' || req.params.folder !== 'storyImages') {
     next();
   }
+
+  const imgName = req.params.imgName;
+  const progress = req.user.progress;
+  const modelFilename = req.params.folder === 'problemImages' ? 'problemInfo.js' : 'storyInfo.js';
+  require(`./../src/server/models/${modelFilename}`).find({}, (err, modelInfos) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    modelInfos.sort((p1, p2) => {
+      if (p1.number < p2.number) return -1;
+      if (p1.number == p2.number) {
+        if (p1.title < p2.title) return -1;
+        if (p1.title > p2.title) return 1;
+        return 0;
+      }
+      return 1;
+    });
+
+    for (let i = 0; i < modelInfos.length; i++) {
+      if (modelInfos[i].imageName === imgName) {
+        if (progress + 1 < modelInfos[i].number) {
+          res.end('Go away, Anna!');
+          return;
+        } else {
+          next();
+        }
+        break;
+      }
+    }
+  });
 });
 
 // serve pure static assets
