@@ -31,6 +31,7 @@
 
 <script>
   import axios from 'axios';
+  import { mapState, mapActions } from 'vuex';
 
   export default {
     name: 'Main',
@@ -42,7 +43,13 @@
         file: '',
       };
     },
+    computed: {
+      ...mapState(['user']),
+    },
     methods: {
+      ...mapActions([
+        'updateUser',
+      ]),
       onFileChange(e) {
         this.file = e.target.files[0];
         console.log(this.file);
@@ -84,7 +91,11 @@
           });
       },
     },
-    mounted() {
+    async mounted() {
+      await this.updateUser();
+      if (this.user.id !== 'admin') {
+        this.$router.replace('/not_allowed');
+      }
       axios.get('/api/admin/stories')
         .then((res) => {
           this.stories = res.data;

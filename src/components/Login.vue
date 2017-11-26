@@ -40,7 +40,6 @@
           password: this.pw,
         })
           .then(() => {
-            // TODO: add user session in store
             this.updateUser();
             this.$router.push('/main');
           })
