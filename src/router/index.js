@@ -9,6 +9,7 @@ import NotAllowed from '@/components/NotAllowed';
 import Reset from '@/components/Reset';
 import AdminProblem from '@/components/AdminProblem';
 import AdminStory from '@/components/AdminStory';
+import AdminLog from '@/components/AdminLog';
 
 Vue.use(Router);
 
@@ -58,6 +59,11 @@ export default new Router({
       path: '/admin/story',
       name: 'AdminStory',
       component: AdminStory,
+    },
+    {
+      path: '/admin/log',
+      name: 'AdminLog',
+      component: AdminLog,
     },
     {
       path: '/reset',
