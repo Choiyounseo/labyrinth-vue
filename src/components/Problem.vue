@@ -67,24 +67,22 @@
             this.isWrong = true;
           });
       },
-      callback() {
-        if (this.user.progress + 1 < this.$route.params.number) {
-          this.$router.replace('/not_allowed');
-        }
-        axios.get(`/api/problems/${this.$route.params.number}`)
-          .then((res) => {
-            if (res.data.finished) {
-              this.$router.replace('/ending');
-            }
-            this.problem = res.data.problem;
-          })
-          .catch(() => {
-            this.$router.replace('/not_allowed');
-          });
-      },
     },
-    mounted() {
-      this.updateUser(this.callback);
+    async mounted() {
+      await this.updateUser();
+      if (this.user.progress + 1 < this.$route.params.number) {
+        this.$router.replace('/not_allowed');
+      }
+      axios.get(`/api/problems/${this.$route.params.number}`)
+        .then((res) => {
+          if (res.data.finished) {
+            this.$router.replace('/ending');
+          }
+          this.problem = res.data.problem;
+        })
+        .catch(() => {
+          this.$router.replace('/not_allowed');
+        });
     },
   };
 </script>
