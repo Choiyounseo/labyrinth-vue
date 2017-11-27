@@ -47,11 +47,6 @@
         const log = this.logs[classNum - 1][logType];
         return log[ProblemNum - 1] ? this.timerFormat(log[ProblemNum - 1]) : '--:--:--';
       },
-//      endTime(classNum, ProblemNum) {
-//        if (!this.logs) return '--:--:--';
-//        const log = this.logs[classNum - 1].log_end;
-//        return log[ProblemNum - 1] ? this.timerFormat(log[ProblemNum - 1]) : '--:--:--';
-//      },
       timerFormat(date) {
         date = new Date(date);
         return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
