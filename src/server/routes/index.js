@@ -271,16 +271,6 @@ module.exports = (app, passport) => {
               return res.json({ correct: true });
             });
           });
-
-
-          // LogSchema.findOne({ id: req.user.id }, (err, logInfo) => {
-          //   if (err) reject();
-          //   logInfo.log_end[req.params.number - 1] = new Date();
-          //   logInfo.save((err) => {
-          //     if (err) reject();
-          //     return res.json({ correct: true });
-          //   });
-          // });
         });
       })
       .catch(() => {
