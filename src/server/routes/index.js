@@ -179,9 +179,16 @@ module.exports = (app, passport) => {
 
     function createNewLog(id, userInfo) {
       return new Promise((resolve, reject) => {
-        LogSchema.findOne({ id }, (err, logInfo) => {
+        LogSchema.findOneAndUpdate({
+          id,
+        }, {
+          $push: { log_start: userInfo.timer_start },
+        }, {
+          new: true,
+        }, (err, logInfo) => {
           if (err || !logInfo) reject();
-          logInfo.log_start[req.params.number - 1] = userInfo.timer_start;
+          if (logInfo.log_start.length !== Number(req.user.progress) + 1)
+            logInfo.log_start.pop();
           logInfo.save((err) => {
             if (err) reject();
             resolve();
@@ -194,7 +201,6 @@ module.exports = (app, passport) => {
       return res.status(401);
     if (req.params.number > problemList.length + 1)     /* if no such problem exists. */
       return res.status(404);
-
     if (req.params.number == problemList.length + 1) {  /* if requested problem number is right next to the last problem. */
       if (req.user.timer_start)
         return res.json({ finished: true });  /* if user already entered ending. */
@@ -236,7 +242,6 @@ module.exports = (app, passport) => {
       });
     })
       .then(() => {
-        console.log('log1');
         new Promise((resolve, reject) => {
           UserSchema.findOne({ id: req.user.id }, (err, userInfo) => {
             if (err || !userInfo) reject();
@@ -250,20 +255,35 @@ module.exports = (app, passport) => {
         });
       })
       .then(() => {
-        console.log('log2');
         new Promise((resolve, reject) => {
-          LogSchema.findOne({ id: req.user.id }, (err, logInfo) => {
-            if (err) reject();
-            logInfo.log_end[req.params.number - 1] = new Date();
+          LogSchema.findOneAndUpdate({
+            id: req.user.id,
+          }, {
+            $push: { log_end: new Date() },
+          }, {
+            new: true,
+          }, (err, logInfo) => {
+            if (err || !logInfo) reject();
+            if (logInfo.log_end.length !== Number(req.user.progress + 1))
+              logInfo.log_end.pop();
             logInfo.save((err) => {
               if (err) reject();
               return res.json({ correct: true });
             });
           });
+
+
+          // LogSchema.findOne({ id: req.user.id }, (err, logInfo) => {
+          //   if (err) reject();
+          //   logInfo.log_end[req.params.number - 1] = new Date();
+          //   logInfo.save((err) => {
+          //     if (err) reject();
+          //     return res.json({ correct: true });
+          //   });
+          // });
         });
       })
       .catch(() => {
-        console.log('log3');
         res.status(500);
       });
   });
