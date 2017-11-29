@@ -2,15 +2,18 @@
   <div id="app">
     <router-view/>
     <foot id="footer"></foot>
+    <redirect></redirect>
   </div>
 </template>
 
 <script>
   import Foot from './components/Foot';
+  import Redirect from './components/Redirect';
 
   export default {
     name: 'app',
     components: {
+      Redirect,
       Foot,
     },
   };

@@ -109,7 +109,7 @@ app.use(passport.session());
 app.use('/', (req, res, next) => {
   let urlTokens = req.originalUrl.split('/');
   if (!req.user && urlTokens[2] !== 'users' && urlTokens[2] !== 'login' && !(urlTokens[1] === 'static' && (urlTokens[2] === 'javascript' || urlTokens[2] === 'css' || urlTokens[2] === 'font.ttf')) && req.originalUrl !== '/login')
-    res.redirect('/login');
+    res.json({ notLoggedIn: true });
   else
     next();
 });

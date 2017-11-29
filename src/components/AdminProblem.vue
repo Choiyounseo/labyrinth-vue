@@ -125,12 +125,7 @@
       },
     },
     async mounted() {
-      try {
-        await this.updateUser();
-      } catch (err) {
-        this.$router.replace('/login');
-        return;
-      }
+      await this.updateUser();
       if (this.user.id !== 'admin') {
         this.$router.replace('/not_allowed');
         return;
