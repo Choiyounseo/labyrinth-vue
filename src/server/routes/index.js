@@ -303,6 +303,13 @@ module.exports = (app, passport) => {
     res.json({ story: storyList[req.params.number] });
   });
 
+  app.get('/api/finished', (req, res) => {
+    if (req.user.progress >= problemList.length) {
+      return res.json({ finished: true });
+    }
+    return res.json({ finished: false });
+  })
+
   app.get('/api/admin/logs', (req, res) => {
     LogSchema.find({}, (err, logInfos) => {
       if (err) return res.status(500);
