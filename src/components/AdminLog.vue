@@ -69,9 +69,15 @@
       },
     },
     async mounted() {
-      await this.updateUser();
+      try {
+        await this.updateUser();
+      } catch (err) {
+        this.$router.replace('/login');
+        return;
+      }
       if (this.user.id !== 'admin') {
         this.$router.replace('/not_allowed');
+        return;
       }
       axios.get('/api/admin/problems')
         .then((res) => {

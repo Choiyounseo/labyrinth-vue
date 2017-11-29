@@ -15,13 +15,18 @@ export default new Vuex.Store({
   },
   actions: {
     async updateUser({ commit }) {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         axios.get('/api/user')
           .then((res) => {
             commit('updateUser', res.data.user);
             resolve();
           })
-          .catch();
+          .catch((err) => {
+            console.log(err);
+            if (err.response && err.response.status === 404) {
+              reject();
+            }
+          });
       });
     },
   },
