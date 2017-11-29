@@ -49,7 +49,10 @@
       },
       timerFormat(date) {
         date = new Date(date);
-        return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+        const hours = date.getHours();
+        const mins = date.getMinutes();
+        const secs = date.getSeconds();
+        return `${hours < 10 ? `0${hours}` : hours}:${mins < 10 ? `0${mins}` : mins}:${secs < 10 ? `0${secs}` : secs}`;
       },
       updateLogs() {
         axios.get('/api/admin/logs')
