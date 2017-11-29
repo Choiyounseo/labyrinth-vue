@@ -39,22 +39,19 @@
       ...mapActions([
         'updateUser',
       ]),
-      callback() {
-        console.log(this.user.progress);
-        if (this.user.progress < this.$route.params.number) {
-          this.$router.replace('/not_allowed');
-        }
-        axios.get(`/api/stories/${this.$route.params.number}`)
-          .then((res) => {
-            this.story = res.data.story;
-          })
-          .catch(() => {
-            this.$router.push('/not_allowed');
-          });
-      },
     },
-    mounted() {
-      this.updateUser(this.callback);
+    async mounted() {
+      await this.updateUser();
+      if (this.user.progress < this.$route.params.number) {
+        this.$router.replace('/not_allowed');
+      }
+      axios.get(`/api/stories/${this.$route.params.number}`)
+        .then((res) => {
+          this.story = res.data.story;
+        })
+        .catch(() => {
+          this.$router.push('/not_allowed');
+        });
     },
   };
 </script>
